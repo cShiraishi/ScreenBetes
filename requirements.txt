@@ -6,3 +6,4 @@ pandas
 numpy
 Pillow
 streamlit-ketcher
+scikit-learn
