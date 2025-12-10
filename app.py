@@ -190,7 +190,20 @@ if all(m is None for m in models.values()):
     st.error("❌ CRITICAL: No models found!")
 else:
     loaded_names = [name for name, m in models.items() if m is not None]
-    st.success(f"✅ Loaded models: {', '.join(loaded_names)}")
+    # Custom styled message (Light Purple)
+    st.markdown(f"""
+    <div style="
+        background-color: #f3e5f5;
+        color: #4a148c;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        border: 1px solid #e1bee7;
+        margin-bottom: 20px;
+    ">
+        ✅ Loaded models: {', '.join(loaded_names)}
+    </div>
+    """, unsafe_allow_html=True)
 
 # Tabs for Prediction Modes
 tab1, tab2 = st.tabs(["🧪 Single Prediction", "📦 Batch Prediction"])
