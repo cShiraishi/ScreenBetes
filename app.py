@@ -50,7 +50,8 @@ def load_models():
     models = {}
     model_files = {
         "PTP1B": "xgboost_ptp1b_final.pkl",
-        "SLTG2": "qsar_model_SLTG2.pkl"
+        "SLTG2": "qsar_model_SLTG2.pkl",
+        "DPP4": "model_ddp4_rf.pkl"
     }
     
     for name, filename in model_files.items():
@@ -181,6 +182,9 @@ Predicting biological activity against two targets:
     
 2.  **SLTG2 (Sodium-Glucose Transport Protein 2)**
     *   Responsible for reabsorbing glucose in the kidneys. Inhibiting SGLT2 allows glucose to be excreted in urine, lowering blood sugar levels.
+
+3.  **DPP4 (Dipeptidyl peptidase-4)**
+    *   An enzyme that degrades incretins (GLP-1). DPP4 inhibitors prolong the activity of incretins, stimulating insulin secretion and regulating blood glucose.
 
 **Input**: Molecule SMILES.
 """)
