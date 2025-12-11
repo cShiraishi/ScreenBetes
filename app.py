@@ -175,7 +175,7 @@ with col_team:
         """)
 
 st.markdown("""
-Predicting biological activity against two targets:
+Predicting biological activity against targets:
 
 1.  **PTP1B (Protein Tyrosine Phosphatase 1B)**
     *   A negative regulator of insulin signaling. Inhibition of PTP1B improves insulin sensitivity, making it a target for Diabetes (Type 2) and Obesity.
@@ -210,7 +210,7 @@ else:
     """, unsafe_allow_html=True)
 
 # Tabs for Prediction Modes
-tab1, tab2 = st.tabs(["🧪 Single Prediction", "📦 Batch Prediction"])
+tab1, tab2 = st.tabs(["🧪 Single Prediction", "📦 List Prediction"])
 
 # --- TAB 1: SINGLE ---
 with tab1:
@@ -302,7 +302,7 @@ with tab1:
 
 # --- TAB 2: BATCH ---
 with tab2:
-    st.header("Batch Prediction")
+    st.header("List Prediction")
     st.markdown("Enter a list of SMILES (one per line) or upload a CSV/TXT file.")
     
     input_method = st.radio("Input Method:", ["Text (List)", "File Upload"])
