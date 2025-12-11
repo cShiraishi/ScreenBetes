@@ -5,7 +5,7 @@ import xgboost as xgb
 import numpy as np
 import os
 from rdkit import Chem
-from rdkit.Chem import AllChem, Draw
+from rdkit.Chem import AllChem, Draw, Descriptors
 from PIL import Image
 from streamlit_ketcher import st_ketcher
 
@@ -41,6 +41,42 @@ def fp_morgan(smiles, radius=2, nBits=1024):
     except Exception as e:
         # st.error(f"Error processing SMILES: {e}")
         return None, None
+
+def calculate_admet(mol):
+    """
+    Calculates basic ADMET properties using RDKit.
+    Returns a dictionary.
+    """
+    if mol is None:
+        return None
+    
+    mw = Descriptors.MolWt(mol)
+    logp = Descriptors.MolLogP(mol)
+    hbd = Descriptors.NumHDonors(mol)
+    hba = Descriptors.NumHAcceptors(mol)
+    tpsa = Descriptors.TPSA(mol)
+    
+    # Lipinski's Rule of 5:
+    # MW <= 500, LogP <= 5, HBD <= 5, HBA <= 10
+    param_checks = [
+        mw <= 500,
+        logp <= 5,
+        hbd <= 5,
+        hba <= 10
+    ]
+    # We allow 1 violation
+    violations = param_checks.count(False)
+    lipinski = "Pass" if violations <= 1 else "Fail"
+
+    return {
+        "MW": mw,
+        "LogP": logp,
+        "HBD": hbd,
+        "HBA": hba,
+        "TPSA": tpsa,
+        "Lipinski": lipinski,
+        "Lipinski Violations": violations
+    }
 
 # ============================================
 # Load Models
@@ -249,6 +285,24 @@ with tab1:
                         st.image(Draw.MolToImage(mol, size=(300, 300)), caption="Structure")
 
                     st.divider()
+                    
+                    # ADMET Analysis
+                    admet = calculate_admet(mol)
+                    if admet:
+                        with st.expander("🔬 ADMET & Physicochemical Properties", expanded=True):
+                            c1, c2, c3 = st.columns(3)
+                            c1.metric("Molecular Weight", f"{admet['MW']:.2f}")
+                            c2.metric("LogP", f"{admet['LogP']:.2f}")
+                            c3.metric("TPSA", f"{admet['TPSA']:.2f}")
+                            
+                            c4, c5, c6 = st.columns(3)
+                            c4.metric("H-Bond Donors", admet['HBD'])
+                            c5.metric("H-Bond Acceptors", admet['HBA'])
+                            
+                            # Show violations count with status
+                            lip_status = f"{admet['Lipinski Violations']} ({admet['Lipinski']})"
+                            c6.metric("Lipinski Violations", lip_status)
+
                     st.subheader("Results")
 
                     # Conversion
@@ -350,10 +404,19 @@ with tab2:
                 status_text.text(f"Processing {i+1}/{total}...")
                 
                 # Predict
-                features, _ = fp_morgan(smi, radius=2, nBits=1024)
+                features, mol_obj = fp_morgan(smi, radius=2, nBits=1024)
                 
                 row_result = {"SMILES": smi}
                 
+                # ADMET Columns
+                admet = calculate_admet(mol_obj)
+                if admet:
+                    row_result.update(admet)
+                else:
+                    # Fill with None if invalid
+                    for k in ["MW", "LogP", "HBD", "HBA", "TPSA", "Lipinski", "Lipinski Violations"]:
+                        row_result[k] = None
+
                 if features is not None:
                     fp_list = [int(x) for x in features]
                     X_input = np.array([fp_list])
